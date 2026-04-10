@@ -12,7 +12,7 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 handler1 = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
-# 【新增】在這裡定義機器人的個性、職業與能力 (System Prompt)
+openai_message_counter = 0
 system_prompt = """
 你現在是一位資深旅遊規劃師。
 你的個性熱情、幽默、且非常有耐心。
@@ -32,9 +32,14 @@ def callback():
 
 @handler1.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    global openai_message_counter
     text1 = event.message.text
     
-    # 【修改】在 messages 陣列最前方加入 role: system
+    if text1 == "查詢計數":
+        reply_text = f"報告！目前 OpenAI 總共成功回覆了 {openai_message_counter} 則訊息哦！"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
+        return
+        
     response = openai.ChatCompletion.create(
         messages=[
             {"role": "system", "content": system_prompt},
@@ -46,6 +51,9 @@ def handle_message(event):
     
     try:
         ret = response['choices'][0]['message']['content'].strip()
+        openai_message_counter += 1
+        print(f"目前累計傳送次數: {openai_message_counter}")
+        
     except:
         ret = '發生錯誤！'
         
