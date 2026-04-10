@@ -36,7 +36,7 @@ def handle_message(event):
     text1 = event.message.text
     
     if text1 == "查詢計數":
-        reply_text = f"報告！目前 OpenAI 總共成功回覆了 {openai_message_counter} 則訊息哦！"
+        reply_text = f"目前總共成功回覆了 {openai_message_counter} 則訊息！"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_text))
         return
         
